@@ -4,7 +4,7 @@ import os
 import random
 from tqdm import tqdm
 import numpy as np
-
+from PIL import Image
 from data import ops
 
 
@@ -43,7 +43,7 @@ class SegmentationDataset:
             if random.uniform(0.0, 1.0) < cls.aug_ratio:
                 np_raw_image, np_seg_image = cls._data_aug(np_raw_image, np_seg_image)
             np_raw_image = ops.resize_and_pad(np_raw_image, cls.image_size)
-            np_seg_image = ops.resize_and_pad(np_seg_image, cls.image_size)
+            np_seg_image = ops.resize_and_pad(np_seg_image, cls.image_size, resample=Image.NEAREST)
             if np_raw_image.shape[0] < cls.min_size or np_raw_image.shape[1] < cls.min_size:
                 print(f'Pass {raw_image_path} because too small')
                 continue
@@ -94,7 +94,7 @@ class TestSegmentationDataset(SegmentationDataset):
                 if random.uniform(0.0, 1.0) < cls.aug_ratio:
                     np_raw_image, np_seg_image = cls._data_aug(np_raw_image, np_seg_image)
                 np_raw_image = ops.resize_and_pad(np_raw_image, cls.image_size)
-                np_seg_image = ops.resize_and_pad(np_seg_image, cls.image_size)
+                np_seg_image = ops.resize_and_pad(np_seg_image, cls.image_size, resample=Image.NEAREST)
 
                 if np_raw_image.shape[0] < cls.min_size or np_raw_image.shape[1] < cls.min_size:
                     print(f'Pass {raw_image_path} because too small')
