@@ -44,7 +44,6 @@ class SegmentationDataset:
                 np_raw_image, np_seg_image = cls._data_aug(np_raw_image, np_seg_image)
             np_raw_image = ops.resize_and_pad(np_raw_image, cls.image_size)
             np_seg_image = ops.resize_and_pad(np_seg_image, cls.image_size)
-
             if np_raw_image.shape[0] < cls.min_size or np_raw_image.shape[1] < cls.min_size:
                 print(f'Pass {raw_image_path} because too small')
                 continue

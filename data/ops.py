@@ -46,6 +46,8 @@ def data_valid(np_image):
 
 
 def resize_and_pad(np_image, image_size):
+    max_np_image = np.max(np_image)
+    min_np_image = np.min(np_image)
     if np_image.shape[-1] == 1:
         pil_image = Image.fromarray(np.squeeze(np_image, axis=-1), 'L')
     else:
@@ -57,7 +59,7 @@ def resize_and_pad(np_image, image_size):
     resize_width = int(width * scale)
     resize_height = int(height * scale)
 
-    pil_image = pil_image.resize((resize_width, resize_height))
+    pil_image = pil_image.resize((resize_width, resize_height), resample=Image.NEAREST)
 
     padding_width = image_size - resize_width
     padding_height = image_size - resize_height
@@ -69,6 +71,7 @@ def resize_and_pad(np_image, image_size):
     np_image = np.asarray(pil_image)
     if len(np_image.shape) == 2:
         np_image = np.expand_dims(np_image, axis=-1)
+    np_image = np.clip(np_image, min_np_image, max_np_image)
     return np_image
 
 
