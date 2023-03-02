@@ -15,4 +15,4 @@ class SaveCallback(tf.keras.callbacks.Callback):
         output_model_dir_path = os.path.join(self.save_model_dir_path, save_model_name)
         os.makedirs(output_model_dir_path, exist_ok=True)
         self.model.save(output_model_dir_path)
-        self.saved_model.save_weights(os.path.join(output_model_dir_path, save_model_name))
+        self.model.save_weights(os.path.join(output_model_dir_path, save_model_name))

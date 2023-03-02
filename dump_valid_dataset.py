@@ -60,7 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('--input_image_dir_path', type=str, default='~/.vaik-mnist-segmentation-dataset/valid')
     parser.add_argument('--classes_json_path', type=str, default='~/.vaik-mnist-segmentation-dataset/classes.json')
     parser.add_argument('--test_max_sample', type=int, default=100)
-    parser.add_argument('--image_size', type=int, default=512)
+    parser.add_argument('--image_size', type=int, default=320)
     parser.add_argument('--output_dir_path', type=str, default='~/.vaik-segmentation-pb-trainer/dump_valid')
     args = parser.parse_args()
 

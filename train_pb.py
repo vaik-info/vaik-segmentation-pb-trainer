@@ -60,7 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('--step_size', type=int, default=1000)
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--test_max_sample', type=int, default=100)
-    parser.add_argument('--image_size', type=int, default=512)
+    parser.add_argument('--image_size', type=int, default=320)
     parser.add_argument('--output_dir_path', type=str, default='~/output_model')
     args = parser.parse_args()
 
