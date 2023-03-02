@@ -43,9 +43,9 @@ def dump(input_image_dir_path, classes_json_path, test_max_sample, image_size, o
         output_raw_image_path = os.path.join(raw_output_image_dir_path, f'{index:09d}.png')
         Image.fromarray(image).save(output_raw_image_path, quality=100, subsampling=0)
 
-        seg_image = np.squeeze(seg_image, axis=-1)
+        seg_image = np.argmax(seg_image, axis=-1).astype(np.uint8)
         output_seg_image_path = os.path.join(seg_output_image_dir_path, f'{index:09d}_seg.png')
-        Image.fromarray(seg_image).save(output_seg_image_path, quality=100, subsampling=0)
+        Image.fromarray(seg_image, 'L').save(output_seg_image_path, quality=100, subsampling=0)
 
         vis_image = np.zeros(seg_image.shape + (3,), dtype=np.uint8)
         for class_index in range(len(classes_dict['classes'])):

@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 import pytz
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 tf.get_logger().setLevel('ERROR')
 tf.debugging.disable_traceback_filtering()
@@ -26,7 +27,7 @@ def train(train_input_dir_path, valid_input_dir_path, classes_json_path, model_t
     # train
     TrainDataset = type(f'TrainDataset', (segmentation_dataset.SegmentationDataset,), dict())
     train_dataset = TrainDataset(train_input_dir_path, classes_dict['classes'], classes_dict['colors'], image_size)
-    train_dataset = train_dataset.padded_batch(batch_size=batch_size, padding_values=(tf.constant(0, dtype=tf.uint8), tf.constant(0, dtype=tf.int32)))
+    train_dataset = train_dataset.padded_batch(batch_size=batch_size, padding_values=(tf.constant(0, dtype=tf.uint8), tf.constant(0, dtype=tf.float32)))
 
     # valid
     TestDataset = type(f'TestDataset', (segmentation_dataset.TestSegmentationDataset,), dict())
@@ -36,8 +37,8 @@ def train(train_input_dir_path, valid_input_dir_path, classes_json_path, model_t
 
     # prepare model
     model = model_dict[model_type](len(classes_dict['classes']), image_size)
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                  metrics=["accuracy"])
+    model.compile(optimizer=tf.keras.optimizers.Adam(), loss=tfa.losses.SigmoidFocalCrossEntropy(),
+                  metrics=tf.keras.metrics.OneHotMeanIoU(len(classes_dict['classes'])))
     # prepare callback
     save_model_dir_path = os.path.join(output_dir_path,
                                        f'{datetime.now(pytz.timezone("Asia/Tokyo")).strftime("%Y-%m-%d-%H-%M-%S")}')
@@ -57,7 +58,7 @@ if __name__ == '__main__':
     parser.add_argument('--classes_json_path', type=str, default='~/.vaik-mnist-segmentation-dataset/classes.json')
     parser.add_argument('--model_type', type=str, default='deeplab_v3_plus')
     parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--step_size', type=int, default=1000)
+    parser.add_argument('--step_size', type=int, default=2000)
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--test_max_sample', type=int, default=100)
     parser.add_argument('--image_size', type=int, default=320)
