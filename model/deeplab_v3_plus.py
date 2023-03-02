@@ -2,10 +2,10 @@ import tensorflow as tf
 
 def prepare(num_classes, image_size):
     model_input = tf.keras.Input(shape=(image_size, image_size, 3))
+    x = tf.keras.layers.Rescaling(scale=1./255)(model_input)
     backbone = tf.keras.applications.MobileNetV2(
-        weights="imagenet", include_top=False, input_tensor=model_input
+        weights="imagenet", include_top=False, input_tensor=x
     )
-    tf.keras.Model(inputs=model_input, outputs=backbone.output).summary()
     x = backbone.get_layer("block_7_add").output
     x = DilatedSpatialPyramidPooling(x)
 
@@ -23,7 +23,7 @@ def prepare(num_classes, image_size):
         size=(image_size // x.shape[1], image_size // x.shape[2]),
         interpolation="bilinear",
     )(x)
-    model_output = tf.keras.layers.Conv2D(num_classes, kernel_size=(1, 1), padding="same")(x)
+    model_output = tf.keras.layers.Conv2D(num_classes, kernel_size=(1, 1), padding="same", activation='sigmoid')(x)
     return tf.keras.Model(inputs=model_input, outputs=model_output)
 
 def convolution_block(

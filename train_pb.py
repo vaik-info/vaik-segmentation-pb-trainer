@@ -38,7 +38,8 @@ def train(train_input_dir_path, valid_input_dir_path, classes_json_path, model_t
     # prepare model
     model = model_dict[model_type](len(classes_dict['classes']), image_size)
     model.compile(optimizer=tf.keras.optimizers.Adam(), loss=tfa.losses.SigmoidFocalCrossEntropy(),
-                  metrics=tf.keras.metrics.OneHotMeanIoU(len(classes_dict['classes'])))
+                  metrics=tf.keras.metrics.OneHotMeanIoU(len(classes_dict['classes']), ignore_class=classes_dict['classes'].index('background')))
+    model.summary()
     # prepare callback
     save_model_dir_path = os.path.join(output_dir_path,
                                        f'{datetime.now(pytz.timezone("Asia/Tokyo")).strftime("%Y-%m-%d-%H-%M-%S")}')
@@ -57,8 +58,8 @@ if __name__ == '__main__':
     parser.add_argument('--valid_input_dir_path', type=str, default='~/.vaik-mnist-segmentation-dataset/valid')
     parser.add_argument('--classes_json_path', type=str, default='~/.vaik-mnist-segmentation-dataset/classes.json')
     parser.add_argument('--model_type', type=str, default='deeplab_v3_plus')
-    parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--step_size', type=int, default=2000)
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--step_size', type=int, default=5000)
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--test_max_sample', type=int, default=100)
     parser.add_argument('--image_size', type=int, default=320)
