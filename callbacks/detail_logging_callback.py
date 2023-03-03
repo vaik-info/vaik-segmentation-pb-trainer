@@ -12,13 +12,12 @@ class DetailLoggingCallback(tf.keras.callbacks.Callback):
         self.batch_size = batch_size
 
     def on_epoch_end(self, epoch, logs=None):
-        pred = np.expand_dims(np.argmax(self.model.predict(self.train_valid_data[0], batch_size=self.batch_size), -1),
-                              -1)
-        gt = self.train_valid_data[1].numpy()
+        pred = np.argmax(self.model.predict(self.train_valid_data[0], batch_size=self.batch_size), -1)
+        gt = np.argmax(self.train_valid_data[1].numpy(), -1)
         train_result = self.__mean_iou(pred, gt, len(self.classes), self.ignore_index)
 
-        pred = np.expand_dims(np.argmax(self.model.predict(self.valid_data[0], batch_size=self.batch_size), -1), -1)
-        gt = self.valid_data[1]
+        pred = np.argmax(self.model.predict(self.valid_data[0], batch_size=self.batch_size), -1)
+        gt = np.argmax(self.valid_data[1], -1)
         valid_result = self.__mean_iou(pred, gt, len(self.classes),  self.ignore_index)
 
         print(f'train_mIoU: {train_result[0]}, valid_mIoU: {valid_result[0]}')

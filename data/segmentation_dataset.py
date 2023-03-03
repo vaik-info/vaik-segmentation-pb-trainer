@@ -26,7 +26,7 @@ class SegmentationDataset:
         cls.min_size = min_size
         cls.output_signature = (
             tf.TensorSpec(name=f'raw_image', shape=(image_size, image_size, 3), dtype=tf.uint8),
-            tf.TensorSpec(name=f'output_image', shape=(image_size, image_size, 1), dtype=tf.float32)
+            tf.TensorSpec(name=f'output_image', shape=(image_size, image_size, len(cls.classes)), dtype=tf.float32)
         )
         dataset = tf.data.Dataset.from_generator(
             cls._generator,
@@ -45,6 +45,7 @@ class SegmentationDataset:
                 np_raw_image, np_seg_image = cls._data_aug(np_raw_image, np_seg_image)
             np_raw_image = ops.resize_and_pad(np_raw_image, cls.image_size)
             np_seg_image = ops.resize_and_pad(np_seg_image, cls.image_size, resample=Image.NEAREST)
+            np_seg_image = tf.one_hot(np_seg_image, len(cls.classes)).numpy()
             if np_raw_image.shape[0] < cls.min_size or np_raw_image.shape[1] < cls.min_size:
                 print(f'Pass {raw_image_path} because too small')
                 continue
@@ -96,6 +97,7 @@ class TestSegmentationDataset(SegmentationDataset):
                     np_raw_image, np_seg_image = cls._data_aug(np_raw_image, np_seg_image)
                 np_raw_image = ops.resize_and_pad(np_raw_image, cls.image_size)
                 np_seg_image = ops.resize_and_pad(np_seg_image, cls.image_size, resample=Image.NEAREST)
+                np_seg_image = tf.one_hot(np_seg_image, len(cls.classes)).numpy()
                 if np_raw_image.shape[0] < cls.min_size or np_raw_image.shape[1] < cls.min_size:
                     print(f'Pass {raw_image_path} because too small')
                     continue
