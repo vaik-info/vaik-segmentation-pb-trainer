@@ -69,6 +69,8 @@ def resize_and_pad(np_image, image_size, resample=None):
     bottom = padding_height - top
     pil_image = ImageOps.expand(pil_image, (left, top, right, bottom), fill=0)
     np_image = np.asarray(pil_image)
+    if len(np_image.shape) == 2:
+        np_image = np.expand_dims(np_image, axis=-1)
     np_image = np.clip(np_image, min_np_image, max_np_image)
     return np_image
 
