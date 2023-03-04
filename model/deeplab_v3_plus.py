@@ -107,13 +107,13 @@ class TpuConv2DLayer(tf.keras.layers.Conv2D):
             **kwargs
         )
 
+
     def call(self, inputs):
         output = tf.nn.conv2d(inputs, self.kernel,
                               strides=self.strides,
                               padding='SAME',
                               data_format='NHWC',
                               dilations=self.dilation_rate)
-
         if self.use_bias:
             output = tf.nn.bias_add(output, self.bias, data_format='NHWC')
 

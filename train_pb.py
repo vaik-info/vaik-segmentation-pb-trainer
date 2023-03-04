@@ -60,7 +60,7 @@ def train(train_input_dir_path, valid_input_dir_path, classes_json_path, model_t
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train pb')
-    parser.add_argument('--train_input_dir_path', type=str, default='~/.vaik-mnist-segmentation-dataset/train')
+    parser.add_argument('--train_input_dir_path', type=str, default='~/.vaik-mnist-segmentation-dataset/valid')
     parser.add_argument('--valid_input_dir_path', type=str, default='~/.vaik-mnist-segmentation-dataset/valid')
     parser.add_argument('--classes_json_path', type=str, default='~/.vaik-mnist-segmentation-dataset/classes.json')
     parser.add_argument('--model_type', type=str, default='deeplab_v3_plus')
