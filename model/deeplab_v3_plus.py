@@ -56,12 +56,12 @@ def DilatedSpatialPyramidPooling(dspp_input):
         size=(dims[-3] // x.shape[1], dims[-2] // x.shape[2]), interpolation="bilinear",
     )(x)
 
-    out_1 = convolution_block(dspp_input, kernel_size=1, dilation_rate=1)
-    out_6 = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(6 * max(dspp_input.shape) / 512))
-    out_12 = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(12 * max(dspp_input.shape) / 512))
-    out_18 = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(18 * max(dspp_input.shape) / 512))
+    out_s = convolution_block(dspp_input, kernel_size=1, dilation_rate=1)
+    out_m = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(6 * max(dspp_input.shape) / 512))
+    out_l = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(12 * max(dspp_input.shape) / 512))
+    out_xl = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(18 * max(dspp_input.shape) / 512))
 
-    x = tf.keras.layers.Concatenate(axis=-1)([out_pool, out_1, out_6, out_12, out_18])
+    x = tf.keras.layers.Concatenate(axis=-1)([out_pool, out_s, out_m, out_l, out_xl])
     output = convolution_block(x, kernel_size=1)
     return output
 
