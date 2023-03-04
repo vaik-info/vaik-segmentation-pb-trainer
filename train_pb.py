@@ -40,6 +40,8 @@ def train(train_input_dir_path, valid_input_dir_path, classes_json_path, model_t
     model = model_dict[model_type](len(classes_dict['classes']), image_size)
     model.compile(optimizer=tf.keras.optimizers.Adam(), loss=tfa.losses.SigmoidFocalCrossEntropy(),
                   metrics=tf.keras.metrics.OneHotMeanIoU(len(classes_dict['classes']), ignore_class=classes_dict['classes'].index('background')))
+    model.summary()
+
     # prepare callback
     save_model_dir_path = os.path.join(output_dir_path,
                                        f'{datetime.now(pytz.timezone("Asia/Tokyo")).strftime("%Y-%m-%d-%H-%M-%S")}')

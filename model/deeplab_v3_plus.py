@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+
 def prepare(num_classes, image_size):
     model_input = tf.keras.Input(shape=(image_size, image_size, 3))
     backbone = tf.keras.applications.MobileNetV2(
@@ -25,6 +26,7 @@ def prepare(num_classes, image_size):
     model_output = tf.keras.layers.Conv2D(num_classes, kernel_size=(1, 1), padding="same")(x)
     return tf.keras.Model(inputs=model_input, outputs=model_output)
 
+
 def convolution_block(
         block_input,
         num_filters=256,
@@ -32,16 +34,17 @@ def convolution_block(
         dilation_rate=1,
         use_bias=False,
 ):
-    x = tf.keras.layers.Conv2D(
+    x = TpuConv2DLayer(
         num_filters,
         kernel_size=kernel_size,
         dilation_rate=dilation_rate,
-        padding="same",
+        padding='same',
         use_bias=use_bias,
-        kernel_initializer=tf.keras.initializers.HeNormal(),
+        kernel_initializer='he_normal',
     )(block_input)
     x = tf.keras.layers.BatchNormalization()(x)
-    return tf.nn.relu(x)
+    x = tf.keras.layers.ReLU()(x)
+    return x
 
 
 def DilatedSpatialPyramidPooling(dspp_input):
@@ -60,3 +63,59 @@ def DilatedSpatialPyramidPooling(dspp_input):
     x = tf.keras.layers.Concatenate(axis=-1)([out_pool, out_1, out_6, out_12, out_18])
     output = convolution_block(x, kernel_size=1)
     return output
+
+
+class TpuConv2DLayer(tf.keras.layers.Conv2D):
+    def __init__(
+            self,
+            filters,
+            kernel_size,
+            strides=(1, 1),
+            padding="valid",
+            data_format=None,
+            dilation_rate=(1, 1),
+            groups=1,
+            activation=None,
+            use_bias=True,
+            kernel_initializer="glorot_uniform",
+            bias_initializer="zeros",
+            kernel_regularizer=None,
+            bias_regularizer=None,
+            activity_regularizer=None,
+            kernel_constraint=None,
+            bias_constraint=None,
+            **kwargs
+    ):
+        super().__init__(
+            filters=filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding=padding,
+            data_format=data_format,
+            dilation_rate=dilation_rate,
+            groups=groups,
+            activation=tf.keras.activations.get(activation),
+            use_bias=use_bias,
+            kernel_initializer=tf.keras.initializers.get(kernel_initializer),
+            bias_initializer=tf.keras.initializers.get(bias_initializer),
+            kernel_regularizer=tf.keras.regularizers.get(kernel_regularizer),
+            bias_regularizer=tf.keras.regularizers.get(bias_regularizer),
+            activity_regularizer=tf.keras.regularizers.get(activity_regularizer),
+            kernel_constraint=tf.keras.constraints.get(kernel_constraint),
+            bias_constraint=tf.keras.constraints.get(bias_constraint),
+            **kwargs
+        )
+
+    def call(self, inputs):
+        output = tf.nn.conv2d(inputs, self.kernel,
+                              strides=self.strides,
+                              padding='SAME',
+                              data_format='NHWC',
+                              dilations=self.dilation_rate)
+
+        if self.use_bias:
+            output = tf.nn.bias_add(output, self.bias, data_format='NHWC')
+
+        if self.activation is not None:
+            output = self.activation(output)
+        return output
