@@ -8,7 +8,8 @@ def prepare(num_classes, image_size):
         weights="imagenet", include_top=False, input_tensor=x
     )
     x = backbone.get_layer("block_7_add").output
-    x = DilatedSpatialPyramidPooling(x)
+    x = DilatedSpatialPyramidPooling(x, int(6 * image_size / 520), int(12 * image_size / 520),
+                                     int(18 * image_size / 520))
 
     input_a = tf.keras.layers.UpSampling2D(
         size=(image_size // 4 // x.shape[1], image_size // 4 // x.shape[2]),
@@ -48,20 +49,19 @@ def convolution_block(
     return x
 
 
-def DilatedSpatialPyramidPooling(dspp_input):
+def DilatedSpatialPyramidPooling(dspp_input, dilation_rate_s, dilation_rate_m, dilation_rate_l):
     dims = dspp_input.shape
     x = tf.keras.layers.AveragePooling2D(pool_size=(dims[-3], dims[-2]))(dspp_input)
     x = convolution_block(x, kernel_size=1, use_bias=True)
     out_pool = tf.keras.layers.UpSampling2D(
         size=(dims[-3] // x.shape[1], dims[-2] // x.shape[2]), interpolation="bilinear",
     )(x)
+    out_1 = convolution_block(dspp_input, kernel_size=1, dilation_rate=1)
+    out_s = convolution_block(dspp_input, kernel_size=3, dilation_rate=dilation_rate_s)
+    out_m = convolution_block(dspp_input, kernel_size=3, dilation_rate=dilation_rate_m)
+    out_l = convolution_block(dspp_input, kernel_size=3, dilation_rate=dilation_rate_l)
 
-    out_s = convolution_block(dspp_input, kernel_size=1, dilation_rate=1)
-    out_m = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(6 * max(dspp_input.shape) / 512))
-    out_l = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(12 * max(dspp_input.shape) / 512))
-    out_xl = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(18 * max(dspp_input.shape) / 512))
-
-    x = tf.keras.layers.Concatenate(axis=-1)([out_pool, out_s, out_m, out_l, out_xl])
+    x = tf.keras.layers.Concatenate(axis=-1)([out_pool, out_1, out_s, out_m, out_l])
     output = convolution_block(x, kernel_size=1)
     return output
 
