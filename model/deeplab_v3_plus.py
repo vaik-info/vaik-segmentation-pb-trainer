@@ -3,8 +3,9 @@ import tensorflow as tf
 
 def prepare(num_classes, image_size):
     model_input = tf.keras.Input(shape=(image_size, image_size, 3))
+    x = tf.keras.layers.Rescaling(1./255.)(model_input)
     backbone = tf.keras.applications.MobileNetV2(
-        weights="imagenet", include_top=False, input_tensor=model_input
+        weights="imagenet", include_top=False, input_tensor=x
     )
     x = backbone.get_layer("block_7_add").output
     x = DilatedSpatialPyramidPooling(x)

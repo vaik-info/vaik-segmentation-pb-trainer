@@ -57,7 +57,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train')
     parser.add_argument('--input_image_dir_path', type=str, default='~/.vaik-mnist-segmentation-dataset/train')
     parser.add_argument('--classes_json_path', type=str, default='~/.vaik-mnist-segmentation-dataset/classes.json')
-    parser.add_argument('--sample_num', type=int, default=100)
+    parser.add_argument('--sample_num', type=int, default=1000)
     parser.add_argument('--image_size', type=int, default=320)
     parser.add_argument('--output_dir_path', type=str, default='~/.vaik-segmentation-pb-trainer/dump_train')
     args = parser.parse_args()
