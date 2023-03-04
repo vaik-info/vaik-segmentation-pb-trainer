@@ -3,7 +3,7 @@ import tensorflow as tf
 
 def prepare(num_classes, image_size):
     model_input = tf.keras.Input(shape=(image_size, image_size, 3))
-    x = tf.keras.layers.Rescaling(1./255.)(model_input)
+    x = tf.keras.layers.Rescaling(1. / 255.)(model_input)
     backbone = tf.keras.applications.MobileNetV2(
         weights="imagenet", include_top=False, input_tensor=x
     )
@@ -57,9 +57,9 @@ def DilatedSpatialPyramidPooling(dspp_input):
     )(x)
 
     out_1 = convolution_block(dspp_input, kernel_size=1, dilation_rate=1)
-    out_6 = convolution_block(dspp_input, kernel_size=3, dilation_rate=4)
-    out_12 = convolution_block(dspp_input, kernel_size=3, dilation_rate=8)
-    out_18 = convolution_block(dspp_input, kernel_size=3, dilation_rate=12)
+    out_6 = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(6 * max(dspp_input.shape) / 512))
+    out_12 = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(12 * max(dspp_input.shape) / 512))
+    out_18 = convolution_block(dspp_input, kernel_size=3, dilation_rate=int(18 * max(dspp_input.shape) / 512))
 
     x = tf.keras.layers.Concatenate(axis=-1)([out_pool, out_1, out_6, out_12, out_18])
     output = convolution_block(x, kernel_size=1)
@@ -106,7 +106,6 @@ class TpuConv2DLayer(tf.keras.layers.Conv2D):
             bias_constraint=tf.keras.constraints.get(bias_constraint),
             **kwargs
         )
-
 
     def call(self, inputs):
         output = tf.nn.conv2d(inputs, self.kernel,
