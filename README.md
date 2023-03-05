@@ -46,7 +46,7 @@ train/
 
 ```shell
 pip install -r requirements.txt
-python dump_train_dataset.py --input_image_dir_path ~/.vaik-mnist-segmentation-dataset/valid \
+python dump_train_dataset.py --input_image_dir_path ~/.vaik-mnist-segmentation-dataset/train \
                 --classes_json_path ~/.vaik-mnist-segmentation-dataset/classes.json \
                 --sample_num 1000 \
                 --image_size 320 \
