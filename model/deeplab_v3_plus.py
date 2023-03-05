@@ -25,7 +25,7 @@ def prepare(num_classes, image_size):
         size=(image_size // x.shape[1], image_size // x.shape[2]),
         interpolation="bilinear",
     )(x)
-    model_output = tf.keras.layers.Conv2D(num_classes, kernel_size=(1, 1), padding="same")(x)
+    model_output = tf.keras.layers.Conv2D(num_classes, kernel_size=(1, 1), padding="same", activation='sigmoid')(x)
     return tf.keras.Model(inputs=model_input, outputs=model_output)
 
 
