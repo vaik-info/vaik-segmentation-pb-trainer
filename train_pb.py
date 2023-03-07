@@ -37,7 +37,7 @@ def train(train_input_dir_path, valid_input_dir_path, classes_json_path, model_t
     valid_data = segmentation_dataset.TestSegmentationDataset.get_all_data(valid_dataset)
 
     # prepare model
-    model = model_dict[model_type](len(classes_dict['classes']), image_size)
+    model = model_dict[model_type](len(classes_dict['classes']), image_size, False)
     model.compile(optimizer=tf.keras.optimizers.Adam(), loss=tfa.losses.SigmoidFocalCrossEntropy(),
                   metrics=tf.keras.metrics.OneHotMeanIoU(len(classes_dict['classes']), ignore_class=classes_dict['classes'].index('background')))
     model.summary()
