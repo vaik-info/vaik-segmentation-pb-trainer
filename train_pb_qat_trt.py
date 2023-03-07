@@ -6,7 +6,8 @@ from datetime import datetime
 import pytz
 import tensorflow as tf
 import tensorflow_addons as tfa
-import tensorflow_model_optimization as tfmot
+from tensorflow_quantization import quantize_model
+from tensorflow_quantization.custom_qdq_cases import MobileNetQDQCase
 
 tf.get_logger().setLevel('ERROR')
 tf.debugging.disable_traceback_filtering()
@@ -53,18 +54,11 @@ def train(load_weight_path, train_input_dir_path, valid_input_dir_path, classes_
     model = model_dict[model_type](len(classes_dict['classes']), image_size, False)
     model.load_weights(load_weight_path)
 
-    quant_aware_model = model_dict[model_type](len(classes_dict['classes']), image_size, True)
-
-    with tfmot.quantization.keras.quantize_scope({'TpuConv2DQuantizeConfig': deeplab_v3_plus.TpuConv2DQuantizeConfig,
-                                                  'TpuConv2DLayer': deeplab_v3_plus.TpuConv2DLayer,
-                                                  }):
-        quant_aware_model = tfmot.quantization.keras.quantize_apply(quant_aware_model)
+    quant_aware_model = quantize_model(model, custom_qdq_cases=[MobileNetQDQCase()])
 
     quant_aware_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss=tfa.losses.SigmoidFocalCrossEntropy(),
                       metrics=tf.keras.metrics.OneHotMeanIoU(len(classes_dict['classes']), ignore_class=classes_dict['classes'].index('background')))
     quant_aware_model.summary()
-
-    load_weights(model, quant_aware_model)
 
     # prepare callback
     save_model_dir_path = os.path.join(output_dir_path,
