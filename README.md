@@ -83,6 +83,7 @@ train/
 
 ```shell
 pip install -r requirements.txt
+./tensorflow_quantization_install.sh
 python train_pb_qat_trt.py --load_weight_path ~/output_model/2023-03-06-08-33-31/step-5000_batch-8_epoch-9_loss_0.0046_one_hot_mean_io_u_0.7108_val_loss_0.0035_val_one_hot_mean_io_u_0.7478/step-5000_batch-8_epoch-9_loss_0.0046_one_hot_mean_io_u_0.7108_val_loss_0.0035_val_one_hot_mean_io_u_0.7478 \ 
                 --train_input_dir_path ~/.vaik-mnist-segmentation-dataset/train \
                 --valid_input_dir_path ~/.vaik-mnist-segmentation-dataset/valid \
